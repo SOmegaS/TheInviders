@@ -2,6 +2,11 @@ import pygame as pg
 import os
 import random
 
+# Импорт своих классов
+from unit import *
+from cell import *
+
+
 def chet_hex(y):
     if y % 2 == 0:
         return True
@@ -21,9 +26,9 @@ class Field:
             'stone': [],
             'water': [],
         }
-        self.field = [[('grass', random.randint(0,7)) for _ in range(field_size[0] - 1)] for _ in range(field_size[1])]  # Массив поля
+        self.field = [[Cell(('grass', random.randint(0, 7))) for _ in range(field_size[0] - 1)] for _ in range(field_size[1])]  # Массив поля
         for i in range(field_size[1] // 2):  # В нечетных строчках на 1 гекс больше
-            self.field[i * 2].append(('grass', 0))
+            self.field[i * 2].append(Cell(('grass', 0)))
         self.field_size = field_size  # Размер поля
         files = os.listdir('gameHexPallet')  # Имена картинок
         self.hex_size = (screen_size[0] // field_size[0], screen_size[1] // field_size[1])  # Размер гекса (120, 140)
@@ -40,7 +45,7 @@ class Field:
         line = 0  # Номер линии
         for i in range(len(self.field)):  # Перебор по типам гексов
             for j in range(len(self.field[i])):  # Перебор по номерам
-                img = self.hexes[self.field[i][j][0]][self.field[i][j][1]]
+                img = self.hexes[self.field[i][j].texture[0]][self.field[i][j].texture[1]]
                 screen.blit(img, img.get_rect(bottomright=(w, h)))  # Отрисовка
                 w += self.hex_size[0]  # Сдвиг координат на 1 гекс
             # Сдвиг координат на следующую строку
@@ -83,11 +88,9 @@ class Field:
 
         for j in range(0,self.field_size[1]-1):
             if j % 2 == 0:
-                self.field[j][self.field_size[0]-1] = 'water', 0
+                self.field[j][self.field_size[0]-1].texture = 'water', 0
             else:
-                self.field[j][self.field_size[0]-2] = 'water', 0
-
-
+                self.field[j][self.field_size[0]-2].texture = 'water', 0
 
     def generate(self):
         # Количество гексов каждого типа
@@ -109,7 +112,7 @@ class Field:
             for j in range(len(self.field[i])):
                 r = random.choice(list(self.hexes.keys()))
                 if count[r] > 0:
-                    self.field[i][j] = r, random.randint(0, len(self.hexes[r]) - 1)
+                    self.field[i][j].texture = r, random.randint(0, len(self.hexes[r]) - 1)
                     count[r] -= 1
 
     @staticmethod
